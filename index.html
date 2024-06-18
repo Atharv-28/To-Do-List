@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <link rel="shortcut icon" href="./Assets/sticky-notes.png" type="image/x-icon">
+    <link rel="stylesheet" href="./styles/style.css">
+</head>
+
+<body>
+    <div class="windo">
+        <div class="inputs">
+            <h1>To-Do</h1>
+            <input class="t-t" type="text" id="task" placeholder="task">
+            <input class="t-d" rows type="text" id="description" placeholder="description">
+            <div class="colors-toselect">
+                <input class="c2" title="color" type="checkbox" value="f3542a">
+                <input class="c1" title="color" type="checkbox" value="c6d947">
+                <input class="c3" title="color" type="checkbox" value="f5972c">
+                <input class="c4" title="color" type="checkbox" value="7049f0">
+                <input class="c5" title="color" type="checkbox" value="0aa4f6">
+
+            </div>
+            <button class="todosub" onclick="submit()">Submit</button>
+        </div>
+        <div class="list-main">
+            <h2>List</h2>
+            <div class="tasklist" id="taskList">
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const getData = async () => {
+            const data = await fetch("http://localhost:4000/")
+            const json = await data.json()
+            const taskList = document.getElementById("taskList");
+
+            taskList.innerHTML = '';
+
+            json.forEach(task => {
+                const listItem = document.createElement('div');
+                listItem.classList.add("indi-list")
+                const modifyCSS = "#"+task.hexcolor;
+                console.log(modifyCSS+" fetch")
+                listItem.style.backgroundColor = modifyCSS;
+                // listItem.style.boxShadow = "0 0 5px 1px "+modifyCSS
+                listItem.style.boxShadow = "box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;"
+                listItem.innerHTML = `<h3 class="list-tit">${task.task}</h3><p class="list-desc">${task.description}</p><button class="but" onclick="deleteTask('${task._id}')">Delete</button>`;
+                taskList.appendChild(listItem);                
+            });
+        }
+
+        getData()
+
+        const submit = async () => {
+            let selectedValue = null;
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    checkbox.id = "c-c-c"
+                }
+            });
+            const task = document.getElementById("task")
+            const description = document.getElementById("description")
+            const hexcolor = document.getElementById("c-c-c")
+            console.log(description)
+            console.log(hexcolor)
+
+            await fetch(
+                "http://localhost:4000/add/task", {
+                method: "POST",
+                body: JSON.stringify({
+                    task: task.value,
+                    description: description.value,
+                    hexcolor: hexcolor.value
+                }),
+                headers: {
+                    "Content-Type": "application/json; charset=UTF-8"
+                }
+            }
+            );
+
+            getData();
+            task.value=" "
+            description.value=" "
+        }
+
+        const deleteTask = async (id) => {
+            await fetch(`http://localhost:4000/delete/task/${id}`, {
+                method: "DELETE",
+            });
+
+            getData();
+        }
+    </script>
+</body>
+
+</html>
